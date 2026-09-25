@@ -1,8 +1,9 @@
 # Danh Sách Thành Viên & Báo Cáo Phân Công Nhóm
 
-- **Tên Nhóm:** `[Điền tên nhóm]`
+- **Tên Nhóm:** `CDCV`
 - **Mã Nhóm / Lớp:** `K4-L3-DAY10`
-- **Tên Repository Nộp Bài:** `K4-L3-DAY10-TenNhom-DataPipeline`
+- **Tên Repository Nộp Bài:** `https://github.com/DngVinh/K4-L3A-Day10-CDCV.git`
+- **Email liên hệ nhóm:** `tendangc@gmail.com`
 
 ---
 
@@ -10,49 +11,48 @@
 
 | STT | Họ và tên | MSSV | Email | Vai trò & Phân công công việc | Báo cáo cá nhân |
 |---:|---|---|---|---|---|
-| 1 | | | | Trưởng nhóm / Pipeline Integrator (`core/`, `phase1.py`, `corruption_flow.py`) | `report/<MSSV1>_HoTen.md` |
-| 2 | | | | Data Foundation & Recovery (`crossref.py`, `cleaning.py`, raw data) | `report/<MSSV2>_HoTen.md` |
-| 3 | | | | RAG & Vector Index (`retrieval/index.py`, `embeddings.py`, ChromaDB) | `report/<MSSV3>_HoTen.md` |
-| 4 | | | | Observability & Evaluation (`quality.py` GX 1.x, `testset.py`, reporting) | `report/<MSSV4>_HoTen.md` |
+| 1 | Đào Quang Cảnh | 2A202602542 | — | TV1 — Source owner (`src/ingestion/crossref.py`) | `report/2A202602542_DaoQuangCanh.md` |
+| 2 | Trần Cao Thắng | 2A202602520 | — | TV2 — Cleaning & test-set owner (`src/ingestion/cleaning.py`, `src/evaluation/testset.py`) | `report/2A202602520_TranCaoThang.md` |
+| 3 | Đặng Quốc Cường | 2A202602466 | — | TV3 — Observability owner (`src/observability/quality.py`, `src/observability/reporting.py`) | `report/2A202602466_DangQuocCuong.md` |
+| 4 | Nguyễn Anh Dũng | 2A202602554 | — | TV4 — Corruption & repair owner (`src/ingestion/corruption.py`; corrupted/repaired validation) | `report/2A202602554_NguyenAnhDung.md` |
+| 5 | Dương Xuân Vinh | 2A202602622 | — | Trưởng nhóm / TV5 — Pipeline integration & evidence owner (`src/pipelines/phase1.py`, `src/pipelines/corruption_flow.py`; full-flow reproducibility) | `report/2A202602622_DuongXuanVinh.md` |
 
-*(Nếu nhóm có 3 hoặc 5-6 thành viên, xem bảng phân công chi tiết theo vai trò trong file `CHECKPOINTS.md`)*.
+*Phân công trên bám theo bảng 5-member trong `report/README.md`; TV5 là đầu mối tích hợp, tái lập và tổng hợp bằng chứng toàn pipeline.*
 
 ---
 
 ## # Cá nhân
 
-### ## HoVaTen1-MSSV1
-- **Vai trò:** Trưởng nhóm & Điều phối Pipeline.
-- **Công việc chi tiết đã hoàn thành:**
-  - Thiết lập cấu hình hệ thống `core/config.py` và đường dẫn artifacts `core/utils.py`.
-  - Kết nối luồng thực thi trong `src/pipelines/phase1.py` và `src/pipelines/corruption_flow.py`.
-  - Kiểm tra tính nhất quán của các artifacts và theo dõi Contributor tracking trên GitHub nhánh `main`.
-- **Điều học được / Đóng góp chính:**
-  - Hiểu sâu sắc về thiết kế Idempotent Pipeline và quản lý trạng thái luồng dữ liệu đa tầng.
+### ## Đào Quang Cảnh — TV1 — 2A202602542
+- **Vai trò:** Source owner.
+- **Phạm vi phụ trách / đầu ra:**
+  - Thu thập và chuẩn hóa đầu vào Crossref trong `src/ingestion/crossref.py`.
+  - Bảo đảm raw response, raw records và schema nguồn có thể truy vết, tái sử dụng.
 
-### ## HoVaTen2-MSSV2
-- **Vai trò:** Phụ trách Ingestion, Làm sạch & Phục hồi dữ liệu.
-- **Công việc chi tiết đã hoàn thành:**
-  - Xây dựng module thu thập Crossref API với cơ chế Fallback offline trong `src/ingestion/crossref.py`.
-  - Chuẩn hóa schema, tính toán trường `age_days` và `text_for_embedding` trong `src/ingestion/cleaning.py`.
-  - Thực thi cơ chế Idempotent Repair phục hồi dữ liệu từ raw snapshot.
-- **Điều học được / Đóng góp chính:**
-  - Kỹ thuật truy vết nguồn gốc dữ liệu (Data Lineage) và bảo toàn raw snapshot trước khi biến đổi.
+### ## Trần Cao Thắng — TV2 — 2A202602520
+- **Vai trò:** Cleaning & test-set owner.
+- **Phạm vi phụ trách / đầu ra:**
+  - Làm sạch, chuẩn hóa dữ liệu và tạo các trường phục vụ embedding trong `src/ingestion/cleaning.py`.
+  - Xây dựng test set đánh giá trong `src/evaluation/testset.py`.
+  - Bàn giao cleaned dataset và test set cho các bước downstream.
 
-### ## HoVaTen3-MSSV3
-- **Vai trò:** Phụ trách RAG, Vector Database & Embedding.
-- **Công việc chi tiết đã hoàn thành:**
-  - Quản lý mô hình embedding `sentence-transformers/all-MiniLM-L6-v2`.
-  - Nạp và quản lý 3 collection riêng biệt trong ChromaDB (`papers-baseline`, `papers-corrupted`, `papers-repaired`).
-  - Xây dựng QA Agent truy vấn ngữ cảnh chính xác theo tài liệu.
-- **Điều học được / Đóng góp chính:**
-  - Cách cô lập các không gian vector để so sánh khách quan giữa dữ liệu sạch và dữ liệu bị lỗi.
+### ## Đặng Quốc Cường — TV3 — 2A202602466
+- **Vai trò:** Observability owner.
+- **Phạm vi phụ trách / đầu ra:**
+  - Thiết lập quality checks, Great Expectations 1.x và freshness checks trong `src/observability/quality.py`.
+  - Tạo các báo cáo chất lượng và báo cáo so sánh trong `src/observability/reporting.py`.
+  - Theo dõi chất lượng baseline, corrupted và repaired.
 
-### ## HoVaTen4-MSSV4
-- **Vai trò:** Phụ trách Data Observability & Benchmark Evaluation.
-- **Công việc chi tiết đã hoàn thành:**
-  - Thiết lập Quality Gate theo chuẩn mới **Great Expectations 1.x** và giám sát Freshness SLA trong `src/observability/quality.py`.
-  - Xây dựng bộ câu hỏi đánh giá chuẩn trong `src/evaluation/testset.py`.
-  - Đo lường và xuất bảng đối chiếu 3 trạng thái vào `data/reports/corruption_report.md`.
-- **Điều học được / Đóng góp chính:**
-  - Cách thiết lập hệ thống cảnh báo sớm chặn đứng hiện tượng Silent Failure trước khi dữ liệu vào serving layer.
+### ## Nguyễn Anh Dũng — TV4 — 2A202602554
+- **Vai trò:** Corruption & repair owner.
+- **Phạm vi phụ trách / đầu ra:**
+  - Triển khai các kịch bản corruption có kiểm soát trong `src/ingestion/corruption.py`.
+  - Ghi corruption log, mô tả scenario và kiểm tra dữ liệu corrupted/repaired.
+  - Phối hợp xác nhận khả năng repair từ raw snapshot.
+
+### ## Dương Xuân Vinh — TV5 — 2A202602622
+- **Vai trò:** Trưởng nhóm / Pipeline integration & evidence owner.
+- **Phạm vi phụ trách / đầu ra:**
+  - Điều phối luồng baseline trong `src/pipelines/phase1.py` và luồng corruption-repair trong `src/pipelines/corruption_flow.py`.
+  - Bảo đảm toàn bộ pipeline chạy tái lập được, artifacts liên kết nhất quán và các chỉ số được tổng hợp.
+  - Tổng hợp command, metrics, comparison report và bằng chứng nộp bài.
