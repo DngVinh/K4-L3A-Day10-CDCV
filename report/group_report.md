@@ -204,7 +204,7 @@ Metrics trong ba file JSON khớp khi tính lại từ 30 answer records. Sau co
 - [x] Clean dataset, evaluation set, ba embedding manifests và Chroma index đã được tạo.
 - [x] Rà soát và commit code, artifact, báo cáo mới trên branch hiện tại.
 - [x] Tích hợp cập nhật mới của thành viên và push lên `main`.
-- [ ] Các thành viên tự xác nhận nội dung báo cáo cá nhân đã cập nhật theo lần chạy mới.
-- [ ] Kiểm tra contributor trên `main` và từng thành viên tự nộp link repository trên LMS.
+- [x] Các thành viên tự xác nhận nội dung báo cáo cá nhân đã cập nhật theo lần chạy mới.
+- [x] Kiểm tra contributor trên `main` và từng thành viên tự nộp link repository trên LMS.
 
 Báo cáo này không chứa API key hay nội dung `.env`; các artifact mới đã được quét trước khi commit.
