@@ -6,20 +6,21 @@
 
 | Thông tin         | Nội dung                  |
 | ------------------ | -------------------------- |
-| Khóa/Lớp         | [K3 hoặc K4]              |
-| Tên nhóm         | [Tên hoặc mã nhóm]     |
-| Repository         | [Đường dẫn repository] |
-| Ngày hoàn thành | [YYYY-MM-DD]               |
+| Khóa/Lớp         | K4-L3-DAY10              |
+| Tên nhóm         | CDCV |
+| Repository         | [GitHub repository](https://github.com/DngVinh/K4-L3A-Day10-CDCV.git) |
+| Ngày hoàn thành | 2026-09-25 |
+| Email liên hệ nhóm | tendangc@gmail.com |
 
 ### Thành viên và phân công
 
 | STT | Họ và tên | MSSV | Vai trò chính | Module/deliverable sở hữu |
 | --: | --- | --- | --- | --- |
-| 1 | [Họ tên] | [MSSV] | [Vai trò] | [File, hàm hoặc artifact] |
-| 2 | [Họ tên] | [MSSV] | [Vai trò] | [File, hàm hoặc artifact] |
-| 3 | [Họ tên] | [MSSV] | [Vai trò] | [File, hàm hoặc artifact] |
-| 4 | [Nếu có] | [MSSV] | [Vai trò] | [File, hàm hoặc artifact] |
-| 5 | [Nếu có] | [MSSV] | [Vai trò] | [File, hàm hoặc artifact] |
+| 1 | Đào Quang Cảnh | 2A202602542 | TV1 — Source owner | `src/ingestion/crossref.py`; raw response/raw records/schema |
+| 2 | Trần Cao Thắng | 2A202602520 | TV2 — Cleaning & test-set owner | `src/ingestion/cleaning.py`, `src/evaluation/testset.py`; cleaned dataset/test set |
+| 3 | Đặng Quốc Cường | 2A202602466 | TV3 — Observability owner | `src/observability/quality.py`, `src/observability/reporting.py`; quality/freshness artifacts |
+| 4 | Nguyễn Anh Dũng | 2A202602554 | TV4 — Corruption & repair owner | `src/ingestion/corruption.py`; corruption log/scenarios/repair validation |
+| 5 | Dương Xuân Vinh | 2A202602622 | Trưởng nhóm / TV5 — Pipeline integration & evidence owner | `src/pipelines/phase1.py`, `src/pipelines/corruption_flow.py`; commands/metrics/comparison evidence |
 
 ## 2. Tóm tắt kết quả
 

@@ -1,0 +1,74 @@
+{
+  "success": true,
+  "report_name": "baseline",
+  "row_count": 24,
+  "checks": [
+    {
+      "name": "row_count",
+      "success": true,
+      "observed": 24,
+      "description": "Expected between 5 and 5000 rows."
+    },
+    {
+      "name": "paper_id_not_null",
+      "success": true,
+      "observed": 0,
+      "description": "Column paper_id must not contain null or blank values."
+    },
+    {
+      "name": "title_not_null",
+      "success": true,
+      "observed": 0,
+      "description": "Column title must not contain null or blank values."
+    },
+    {
+      "name": "text_for_embedding_not_null",
+      "success": true,
+      "observed": 0,
+      "description": "Column text_for_embedding must not contain null or blank values."
+    },
+    {
+      "name": "paper_id_unique",
+      "success": true,
+      "observed": 0,
+      "description": "paper_id values must be unique."
+    },
+    {
+      "name": "summary_min_length",
+      "success": true,
+      "observed": 0,
+      "description": "Every summary must contain at least 30 characters."
+    }
+  ],
+  "great_expectations": {
+    "available": true,
+    "success": true,
+    "checks": [
+      {
+        "success": true,
+        "expectation_type": "expect_table_row_count_to_be_between"
+      },
+      {
+        "success": true,
+        "expectation_type": "expect_column_values_to_not_be_null"
+      },
+      {
+        "success": true,
+        "expectation_type": "expect_column_values_to_not_be_null"
+      },
+      {
+        "success": true,
+        "expectation_type": "expect_column_values_to_not_be_null"
+      },
+      {
+        "success": true,
+        "expectation_type": "expect_column_values_to_be_unique"
+      },
+      {
+        "success": true,
+        "expectation_type": "expect_column_value_lengths_to_be_between"
+      }
+    ]
+  },
+  "created_at": "2026-09-25T08:32:40.713324+00:00"
+}

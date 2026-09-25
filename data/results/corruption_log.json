@@ -1,0 +1,66 @@
+{
+  "input_rows": 24,
+  "output_rows": 20,
+  "scenarios": [
+    {
+      "name": "drop_latest_records",
+      "affected_rows": 5,
+      "paper_ids": [
+        "10.1145/3637528.3671812",
+        "10.1145/3637528.3671808",
+        "10.1145/3637528.3671804",
+        "10.1145/3637528.3671807",
+        "10.1145/3637528.3671802"
+      ],
+      "description": "Dropped 5 latest records."
+    },
+    {
+      "name": "blank_summary",
+      "affected_rows": 2,
+      "paper_ids": [
+        "10.1145/3637528.3671824",
+        "10.1145/3637528.3671823"
+      ],
+      "description": "Blanked summary values."
+    },
+    {
+      "name": "inject_noise",
+      "affected_rows": 2,
+      "paper_ids": [
+        "10.1145/3637528.3671803",
+        "10.1145/3637528.3671805"
+      ],
+      "description": "Injected deterministic noise into summaries."
+    },
+    {
+      "name": "truncate_title",
+      "affected_rows": 1,
+      "paper_ids": [
+        "10.1145/3637528.3671824"
+      ],
+      "description": "Truncated one title to fewer than 8 characters."
+    },
+    {
+      "name": "stale_date",
+      "affected_rows": 6,
+      "paper_ids": [
+        "10.1145/3637528.3671801",
+        "10.1145/3637528.3671811",
+        "10.1145/3637528.3671806",
+        "10.1145/3637528.3671809",
+        "10.1145/3637528.3671803",
+        "10.1145/3637528.3671805"
+      ],
+      "description": "Set 6 published dates to 2025-09-25."
+    },
+    {
+      "name": "duplicate_rows",
+      "affected_rows": 1,
+      "paper_ids": [
+        "10.1145/3637528.3671824"
+      ],
+      "description": "Duplicated one paper row."
+    }
+  ],
+  "created_at": "2026-09-25T08:33:06.695739+00:00"
+}
