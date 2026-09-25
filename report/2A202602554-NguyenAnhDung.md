@@ -19,7 +19,7 @@
 | Module/deliverable | File/hàm phụ trách | Input nhận vào | Output bàn giao | Trạng thái |
 | --- | --- | --- | --- | --- |
 | Data corruption suite | `src/ingestion/corruption.py` — `corrupt_clean_dataframe()` | Cleaned dataframe từ `cleaning.py` | Corrupted dataframe, `text_for_embedding` được tạo lại và `corruption_log.json` | Hoàn thành |
-| Kiểm tra corruption/repair | Đối chiếu corrupted và repaired dataset | Corrupted dataset, repaired dataset và log | Kết luận dữ liệu repair có hợp lệ hay không | Chờ tích hợp |
+| Kiểm tra corruption/repair | Đối chiếu corrupted và repaired dataset | Corrupted/repaired dataset, quality/freshness reports và metrics | Xác nhận repair khôi phục dữ liệu và chất lượng RAG | Hoàn thành |
 
 Phạm vi chính của tôi là tạo các lỗi dữ liệu có chủ đích, ghi nhận đầy đủ bằng log và kiểm tra kết quả sau khi pipeline repair chạy. Tôi không nhận ownership cho bước làm sạch, đánh giá metric hoặc orchestration toàn bộ pipeline.
 
@@ -33,9 +33,9 @@ Phạm vi chính của tôi là tạo các lỗi dữ liệu có chủ đích, g
 
 | Nhiệm vụ đã thực hiện | File/hàm/artifact liên quan | Kết quả bàn giao | Cách xác minh |
 | --- | --- | --- | --- |
-| Triển khai 6 kịch bản corruption | `src/ingestion/corruption.py` | Corrupted dataset từ 24 dòng clean thành 23 dòng corrupted | Artifact thật có đủ 6 scenario trong log. |
-| Tạo lại ngữ cảnh embedding | `_rebuild_embedding_text()` | Cột `text_for_embedding` đồng bộ với các trường đã bị làm bẩn | Toàn bộ 23 dòng đầu ra bắt đầu bằng `Title:`. |
-| Ghi audit log | `core.utils.write_json()` | `data/results/corruption_log.json` có số dòng, loại lỗi, số lượng và `paper_id` bị ảnh hưởng | Log ghi nhận 5 bản ghi bị xóa, cùng 5 bản ghi cho mỗi scenario còn lại. |
+| Triển khai 6 kịch bản corruption | `src/ingestion/corruption.py` | Dataset từ 24 dòng baseline thành 20 dòng corrupted | Artifact thật có đủ 6 scenario trong log. |
+| Tạo lại ngữ cảnh embedding | `text_for_embedding` trong corrupted dataset | Context phản ánh title, summary, ngày và metadata đã bị làm bẩn | Pipeline tạo index corrupted riêng để đánh giá trên dữ liệu đã bị tiêm lỗi. |
+| Ghi audit log | `data/results/corruption_log.json` | Log có số dòng, loại lỗi, số lượng và `paper_id` bị ảnh hưởng | Log ghi 5 record bị drop; blank/noise mỗi loại 2; truncate/duplicate mỗi loại 1; stale date 6. |
 
 Output cụ thể phần việc của tôi là hàm `corrupt_clean_dataframe()`. Hàm không sửa dataframe đầu vào, trả về dataframe đã bị làm bẩn có thể tái lập và tạo log chi tiết để phục vụ quality check, evaluation và báo cáo.
 
@@ -66,7 +66,7 @@ Hàm tạo bản sao sâu của cleaned dataframe để không thay đổi basel
 ```
 
 - **Kết quả mong đợi:** Module hợp lệ; khi gọi với cleaned dataframe, log có đủ 6 scenario.
-- **Kết quả thực tế:** Compile thành công; đã chạy trên 24 raw records sau cleaning và tạo 23 dòng corrupted. Kết quả gồm 5 summary rỗng, 5 summary nhiễu, 5 title ngắn, 4 `paper_id` trùng; `text_for_embedding` được tạo lại cho toàn bộ dữ liệu đầu ra.
+- **Kết quả thực tế:** Pipeline chạy trên 24 records baseline và tạo 20 records corrupted. Log xác nhận drop 5 record mới nhất, blank summary 2 record, inject noise 2 record, truncate title 1 record, stale date 6 record và duplicate 1 record.
 - **Artifact/log:** `data/clean/papers_clean_corrupted.csv`, `data/clean/papers_clean_corrupted.json` và `data/results/corruption_log.json`.
 
 ## 5. Một quyết định kỹ thuật quan trọng
@@ -75,14 +75,14 @@ Hàm tạo bản sao sâu của cleaned dataframe để không thay đổi basel
 - **Các phương án đã cân nhắc:** Chọn ngẫu nhiên hoàn toàn mỗi lần chạy; hoặc chọn với seed cố định.
 - **Phương án đã chọn:** Dùng seed cố định riêng cho từng scenario.
 - **Lý do:** Kết quả có thể tái lập, dễ debug và cho phép so sánh baseline/corrupted/repaired trên cùng điều kiện.
-- **Bằng chứng:** Artifact thật có log đủ 6 scenario và liệt kê chính xác các `paper_id` bị tác động; cùng input sẽ chọn cùng record.
+- **Bằng chứng:** Artifact thật có log đủ 6 scenario, liệt kê chính xác các `paper_id` bị tác động; corrupted quality FAIL và freshness STALE, sau repair trở lại PASS/FRESH.
 
-## 6. Một blocker đang theo dõi
+## 6. Kiểm tra repair đã hoàn thành
 
-- **Phạm vi bị ảnh hưởng:** Kiểm tra repaired dataset.
-- **Nguyên nhân:** Repair flow của Thành viên 5 chưa tạo artifact repaired tại thời điểm viết báo cáo.
-- **Những gì đã hoàn thành:** Đã tạo corrupted dataset thật từ cleaned dataset của Thành viên 2, gồm 24 dòng input và 23 dòng output, đồng thời tạo audit log.
-- **Bước tiếp theo:** Sau repair, đối chiếu schema, duplicate, title, summary và published giữa baseline/corrupted/repaired.
+- **Phạm vi kiểm tra:** Dữ liệu repaired, quality/freshness reports và metrics RAG.
+- **Cách repair:** Pipeline đọc lại raw snapshot, clean lại từ đầu và xây dựng index repaired riêng; không sửa vá trực tiếp dataframe corrupted.
+- **Kết quả:** Repaired quality chuyển từ FAIL về PASS, freshness từ STALE về FRESH. Các metric `retrieval_hit_rate`, `mean_token_f1`, `judge_accuracy` và `mean_judge_score` đều quay về mức baseline.
+- **Bằng chứng:** `data/results/repaired_metrics.json`, `data/quality/repaired_quality_report.json`, `data/quality/repaired_freshness_report.json` và `data/reports/corruption_report.md`.
 
 ## 7. Hiểu biết về luồng end-to-end
 
@@ -96,14 +96,14 @@ Hàm tạo bản sao sâu của cleaned dataframe để không thay đổi basel
 
 | Metric/signal | Baseline | Corrupted | Repaired | Nhận xét của cá nhân |
 | --- | ---: | ---: | ---: | --- |
-| `retrieval_hit_rate` | Chưa có | Chưa có | Chưa có | Chờ pipeline integration chạy cùng test set. |
-| `mean_token_f1` | Chưa có | Chưa có | Chưa có | Chờ pipeline integration chạy cùng test set. |
-| `judge_accuracy` | Chưa có | Chưa có | Chưa có | Chờ pipeline integration chạy cùng test set. |
-| `mean_judge_score` | Chưa có | Chưa có | Chưa có | Chờ pipeline integration chạy cùng test set. |
-| Quality checks | Chưa có | Chưa có | Chưa có | Corruption được thiết kế để tạo signal về summary, title và duplicate. |
-| Freshness status | Chưa có | Chưa có | Chưa có | Scenario stale date dự kiến làm freshness xấu đi. |
+| `retrieval_hit_rate` | 1.0000 | 0.4000 | 1.0000 | Mất 60 điểm phần trăm do corruption; repair phục hồi toàn bộ. |
+| `mean_token_f1` | 1.0000 | 0.6788 | 1.0000 | Mức overlap của câu trả lời giảm rồi quay về baseline. |
+| `judge_accuracy` | 1.0000 | 0.7000 | 1.0000 | 3/10 câu trả lời bị ảnh hưởng trong trạng thái corrupted. |
+| `mean_judge_score` | 5.0000 | 3.6000 | 5.0000 | Điểm đánh giá giảm 1.4 rồi phục hồi. |
+| Quality checks | PASS | FAIL | PASS | Data corruption bị phát hiện; repaired data hợp lệ trở lại. |
+| Freshness status | FRESH | STALE | FRESH | 6/20 record stale làm stale ratio đạt 30%. |
 
-Chưa có số liệu baseline/corrupted/repaired thực tế nên tôi không kết luận mức suy giảm hay phục hồi. Sau khi pipeline hoàn tất, cần kiểm tra chuỗi bằng chứng: corruption làm quality/freshness thay đổi và metric RAG giảm; repair từ raw làm artifact hợp lệ trở lại và metric phục hồi.
+Corruption làm quality/freshness thay đổi từ PASS/FRESH sang FAIL/STALE, đồng thời retrieval hit rate giảm từ 1.0000 xuống 0.4000 và Token F1 giảm còn 0.6788. Tác động rõ nhất là drop 5 record mới nhất, trong đó có tài liệu ground truth của evaluation set. Repair rebuild từ raw snapshot đã khôi phục quality/freshness và toàn bộ bốn metric về baseline.
 
 ## 9. Điều học được và hướng cải thiện
 
