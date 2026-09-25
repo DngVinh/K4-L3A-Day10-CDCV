@@ -11,7 +11,7 @@
 | Khóa/Lớp         | K4              |
 | Tên nhóm         | CDCV     |
 | Vai trò chính    | Source owner                 |
-| Repository         | https://github.com/DngVinh/K4-L3A-Day10-Data-Pipeline-Data-Observability |
+| Repository         | https://github.com/DngVinh/K4-L3A-Day10-CDCV |
 | Ngày hoàn thành | 2026-09-25               |
 
 ## 2. Vai trò và phạm vi công việc

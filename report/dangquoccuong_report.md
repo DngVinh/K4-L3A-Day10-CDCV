@@ -11,7 +11,7 @@
 | Khóa/Lớp | K4 — L3A - H201|
 | Tên nhóm | **CDCV** |
 | Vai trò chính | Thành viên 3 — Observability owner (nhóm 5 người) |
-| Repository | **https://github.com/DngVinh/K4-L3A-Day10-Data-Pipeline-Data-Observability** |
+| Repository | **https://github.com/DngVinh/K4-L3A-Day10-CDCV** |
 | Ngày cập nhật báo cáo | 2026-09-25 |
 
 ## 2. Vai trò và phạm vi công việc

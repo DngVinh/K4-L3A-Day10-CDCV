@@ -6,7 +6,7 @@
 | --- | --- |
 | Khóa/lớp | K4-L3-DAY10 |
 | Nhóm | CDCV |
-| Repository | [K4-L3A-Day10-Data-Pipeline-Data-Observability](https://github.com/DngVinh/K4-L3A-Day10-Data-Pipeline-Data-Observability) |
+| Repository | [K4-L3A-Day10-CDCV](https://github.com/DngVinh/K4-L3A-Day10-CDCV) |
 | Ngày tổng hợp | 2026-09-25 |
 | Email liên hệ | tendangc@gmail.com |
 
