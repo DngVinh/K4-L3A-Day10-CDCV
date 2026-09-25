@@ -38,10 +38,14 @@ def _freshness_payload(df: pd.DataFrame, settings: Settings) -> dict[str, Any]:
         if "published" in df
         else pd.Series(pd.NaT, index=df.index, dtype="datetime64[ns, UTC]")
     )
-    if "age_days" in df:
-        ages = pd.to_numeric(df["age_days"], errors="coerce")
-    else:
-        ages = (pd.Timestamp.now(tz="UTC") - published).dt.days
+    published_ages = (pd.Timestamp.now(tz="UTC").normalize() - published).dt.days
+    reported_ages = (
+        pd.to_numeric(df["age_days"], errors="coerce")
+        if "age_days" in df
+        else pd.Series(float("nan"), index=df.index)
+    )
+    # A stale cached age must not hide an older publication date (or vice versa).
+    ages = pd.concat([published_ages, reported_ages], axis=1).max(axis=1)
 
     unknown_rows = int(ages.isna().sum())
     stale_rows = int(ages.gt(settings.freshness_threshold_days).sum())

@@ -41,9 +41,10 @@ def main() -> None:
     )
     source_summary = {
         "source_api": settings.source_api,
+        "source_mode": "live with snapshot fallback" if settings.refresh_source else "offline snapshot",
         "query": settings.source_query,
         "records": len(records),
-        "raw_records_path": str(settings.paths.raw_records_json),
+        "raw_records_path": settings.paths.raw_records_json.relative_to(settings.paths.project_dir).as_posix(),
         "run_at": run_date.isoformat(),
     }
     generate_phase1_report(

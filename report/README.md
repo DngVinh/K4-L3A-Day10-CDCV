@@ -7,7 +7,7 @@ Thư mục `report/` cung cấp mẫu báo cáo cho **bài tập bắt buộc l�
 Mỗi nhóm nộp:
 
 1. Một [`group_report.md`](group_report.md) đại diện cho kết quả chung của nhóm.
-2. Mỗi thành viên hoàn thành thêm một bản [`individual_report.md`](individual_report.md) để mô tả vai trò, phần việc, kết quả và mức hiểu của mình trong nhóm.
+2. Mỗi thành viên hoàn thành một báo cáo cá nhân riêng để mô tả vai trò, phần việc, kết quả và mức hiểu của mình trong nhóm; xem các file báo cáo hiện có trong thư mục `report/`.
 
 Khi cần lưu nhiều báo cáo thành viên trong cùng repository, nhóm nên tạo bản sao theo quy ước:
 
@@ -96,7 +96,7 @@ Trình tự phụ thuộc cần giữ:
 5. Dùng lại cùng evaluation set cho baseline, corrupted và repaired.
 6. Đọc artifacts và metrics trước khi viết kết luận.
 
-Trong `individual_report.md`, mỗi thành viên cần phân biệt rõ:
+Trong báo cáo cá nhân, mỗi thành viên cần phân biệt rõ:
 
 - phần đã hoàn thành;
 - phần mới dừng ở mức thử nghiệm;
@@ -189,7 +189,7 @@ Với môi trường `pip` đã được kích hoạt:
 python script/run_corruption_flow.py
 ```
 
-Repo hiện không cung cấp test hoặc grader tự động làm tiêu chí pass cuối cùng. Việc xác minh dựa trên lệnh pipeline, artifacts thực tế, metrics, báo cáo và [`RUBRIC.md`](../docs/RUBRIC.md).
+Repo có `tests/test_observability.py` và `tests/test_pipeline_contracts.py` để kiểm tra quality, reporting, freshness và câu hỏi tác giả, nhưng chưa có bộ test end-to-end hoặc grader tự động làm tiêu chí pass cuối cùng. Việc xác minh vẫn cần hai lệnh pipeline, artifacts thực tế, metrics, báo cáo và [`RUBRIC.md`](../docs/RUBRIC.md).
 
 Tối thiểu cần kiểm tra:
 

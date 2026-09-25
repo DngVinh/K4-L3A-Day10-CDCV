@@ -1,25 +1,32 @@
-# Corruption and Repair Report
+# Báo cáo đối chiếu dữ liệu
 
-The same evaluation set is used for all three states.
+## Baseline vs Corrupted vs Repaired
 
-## Metrics comparison
+| Metric | Baseline | Corrupted | Repaired |
+| --- | ---: | ---: | ---: |
+| `samples` | 10 | 10 | 10 |
+| `retrieval_hit_rate` | 1.000 | 0.400 | 1.000 |
+| `mean_token_f1` | 1.000 | 0.653 | 1.000 |
+| `judge_accuracy` | 1.000 | 0.700 | 1.000 |
+| `mean_judge_score` | 5 | 3.400 | 5 |
 
-| Metric | Baseline | Corrupted | Repaired | Corruption delta | Repair delta |
-| --- | ---: | ---: | ---: | ---: | ---: |
-| `retrieval_hit_rate` | 1.0000 | 0.4000 | 1.0000 | -0.6000 | +0.6000 |
-| `mean_token_f1` | 1.0000 | 0.6788 | 1.0000 | -0.3212 | +0.3212 |
-| `judge_accuracy` | 1.0000 | 0.7000 | 1.0000 | -0.3000 | +0.3000 |
-| `mean_judge_score` | 5.0000 | 3.6000 | 5.0000 | -1.4000 | +1.4000 |
+## Quality Gate và Freshness SLA
 
-## Quality and freshness signals
+| Signal | Corrupted | Repaired |
+| --- | ---: | ---: |
+| Quality Gate | FAIL | PASS |
+| Failed checks | ExpectColumnValuesToBeUnique(paper_id), ExpectColumnValueLengthsToBeBetween(summary) | Không có |
+| Freshness | FAIL | PASS |
+| Stale rows | 7 | 1 |
+| Stale ratio | 0.304 | 0.042 |
 
-| Signal | Baseline | Corrupted | Repaired |
-| --- | --- | --- | --- |
-| Quality checks pass | — | FAIL | PASS |
-| Freshness status | — | STALE | FRESH |
+## Chênh lệch so với baseline
 
-## Interpretation
+| Metric | Corrupted - Baseline | Repaired - Baseline |
+| --- | ---: | ---: |
+| `retrieval_hit_rate` | -0.600 | +0.000 |
+| `mean_token_f1` | -0.347 | +0.000 |
+| `judge_accuracy` | -0.300 | +0.000 |
+| `mean_judge_score` | -1.600 | +0.000 |
 
-- Corruption is observable when quality or freshness changes and the RAG metrics degrade.
-- Repair rebuilds the clean dataframe from the trusted raw snapshot, then recreates the vector index.
-- A successful repair is indicated by restored quality/freshness and recovered evaluation metrics.
+Đối chiếu các chênh lệch trên với corruption log trước khi kết luận tác động và phục hồi.

@@ -5,6 +5,7 @@ from math import ceil
 import pandas as pd
 
 from core.utils import write_json
+from observability.quality import MAX_STALE_RATIO
 
 
 _REQUIRED_COLUMNS = {
@@ -120,10 +121,18 @@ def corrupt_clean_dataframe(df: pd.DataFrame, output_log_path) -> pd.DataFrame:
     )
 
     # 5. Make selected records stale by moving their publication date back one year.
-    stale_indices = _sample_indices(corrupted, affected_count, seed=53)
+    # The final dataset will also contain affected_count duplicated rows.
+    # Make this scenario exceed the freshness SLA even if no duplicate is stale.
+    final_row_count = len(corrupted) + affected_count
+    stale_count = max(affected_count, int(final_row_count * MAX_STALE_RATIO) + 1)
+    stale_indices = _sample_indices(corrupted, stale_count, seed=53)
     stale_paper_ids = corrupted.loc[stale_indices, "paper_id"].astype(str).tolist()
     stale_dates = pd.to_datetime(corrupted.loc[stale_indices, "published"], errors="coerce", utc=True)
     corrupted.loc[stale_indices, "published"] = (stale_dates - pd.Timedelta(days=365)).dt.date.astype(str)
+    if "age_days" in corrupted:
+        corrupted.loc[stale_indices, "age_days"] = (
+            pd.to_numeric(corrupted.loc[stale_indices, "age_days"], errors="coerce") + 365
+        )
     log.append(
         {
             "scenario": "stale_date",

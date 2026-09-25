@@ -11,10 +11,10 @@
 
 | STT | Họ và tên | MSSV | Email | Vai trò & Phân công công việc | Báo cáo cá nhân |
 |---:|---|---|---|---|---|
-| 1 | Đào Quang Cảnh | 2A202602542 | — | TV1 — Source owner (`src/ingestion/crossref.py`) | `report/2A202602542_DaoQuangCanh.md` |
+| 1 | Đào Quang Cảnh | 2A202602542 | — | TV1 — Source owner (`src/ingestion/crossref.py`) | `report/daoquangcanh.md` |
 | 2 | Trần Cao Thắng | 2A202602520 | — | TV2 — Cleaning & test-set owner (`src/ingestion/cleaning.py`, `src/evaluation/testset.py`) | `report/2A202602520_TranCaoThang.md` |
-| 3 | Đặng Quốc Cường | 2A202602466 | — | TV3 — Observability owner (`src/observability/quality.py`, `src/observability/reporting.py`) | `report/2A202602466_DangQuocCuong.md` |
-| 4 | Nguyễn Anh Dũng | 2A202602554 | — | TV4 — Corruption & repair owner (`src/ingestion/corruption.py`; corrupted/repaired validation) | `report/2A202602554_NguyenAnhDung.md` |
+| 3 | Đặng Quốc Cường | 2A202602466 | — | TV3 — Observability owner (`src/observability/quality.py`, `src/observability/reporting.py`) | `report/dangquoccuong_report.md` |
+| 4 | Nguyễn Anh Dũng | 2A202602554 | — | TV4 — Corruption & repair owner (`src/ingestion/corruption.py`; corrupted/repaired validation) | `report/nguyenanhdung.md` |
 | 5 | Dương Xuân Vinh | 2A202602622 | — | Trưởng nhóm / TV5 — Pipeline integration & evidence owner (`src/pipelines/phase1.py`, `src/pipelines/corruption_flow.py`; full-flow reproducibility) | `report/2A202602622_DuongXuanVinh.md` |
 
 *Phân công trên bám theo bảng 5-member trong `report/README.md`; TV5 là đầu mối tích hợp, tái lập và tổng hợp bằng chứng toàn pipeline.*

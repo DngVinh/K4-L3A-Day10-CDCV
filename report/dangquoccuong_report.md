@@ -1,6 +1,6 @@
 # Báo cáo cá nhân — Thành viên 3: Data Observability
 
-> Báo cáo này ghi nhận phần mã và kiểm thử đã hoàn thành trong repository hiện tại. Các chỉ số đánh giá RAG chỉ được điền sau khi nhóm chạy hai pipeline và tạo artifact thực tế.
+> Báo cáo này ghi nhận phần mã observability và kết quả tích hợp được chạy lại ngày 2026-09-25 với `LLM_PROVIDER=mock`. Các điểm judge là heuristic fallback, không phải LLM judge thực.
 
 ## 1. Thông tin cá nhân
 
@@ -38,10 +38,10 @@ Trong phương án nhóm 5 người tại `report/README.md`, thành viên 2 ph�
 | Nhiệm vụ đã thực hiện | File/artifact | Kết quả bàn giao | Cách xác minh |
 | --- | --- | --- | --- |
 | Cài Quality Gate bằng Great Expectations 1.x | `src/observability/quality.py` | 6 checks: số dòng 5–5000; 3 cột không null; `paper_id` duy nhất; `summary` dài tối thiểu 30 ký tự | `tests/test_observability.py::test_quality_gate_detects_corruption_and_freshness` |
-| Giám sát độ tươi | `src/observability/quality.py` | Đếm bài có `age_days > 180`; `is_fresh=False` nếu tỷ lệ bài cũ vượt 25%, có tuổi không xác định hoặc tập dữ liệu rỗng | Cùng bài kiểm tra trên: 3/5 bài cũ cho `stale_ratio=0.6`, `is_fresh=False` |
+| Giám sát độ tươi | `src/observability/quality.py` | Đối chiếu tuổi từ `published` và `age_days`, dùng giá trị cũ hơn để không bỏ sót; `is_fresh=False` nếu tỷ lệ bài cũ vượt 25%, có tuổi không xác định hoặc tập dữ liệu rỗng | Test mẫu 3/5 bài cũ cho `stale_ratio=0.6`; flow tích hợp corrupted 7/23 và `is_fresh=False` |
 | Sinh báo cáo Markdown | `src/observability/reporting.py` | Bảng metrics, quality, freshness và chênh lệch so với baseline | `tests/test_observability.py::test_reports_render_supplied_values` |
 
-Kết quả kiểm thử là dữ liệu **giả lập trong thư mục tạm**, không phải metrics RAG thực của nhóm. Hiện `data/quality/`, `data/results/` và `data/reports/` chưa có artifact chạy pipeline để đưa số liệu thật vào báo cáo này.
+Hai bài test observability dùng dữ liệu **giả lập trong thư mục tạm**. Sau tích hợp, `data/quality/`, `data/results/` và `data/reports/` đã có artifact từ snapshot 24 bài; metrics này thuộc lần chạy pipeline với mock/heuristic, tách biệt với dữ liệu test đơn vị.
 
 ## 4. Giải thích phần kỹ thuật đã thực hiện
 
@@ -53,7 +53,7 @@ Pipeline RAG có thể tiếp tục chạy khi dữ liệu đầu vào bị trù
 
 `run_data_quality_checks` tạo GX 1.x ephemeral context, Pandas data source, DataFrame asset và batch. Trước khi kiểm định, hàm chuẩn hóa khoảng trắng và chuyển chuỗi rỗng ở các trường bắt buộc thành null trên **bản sao** của DataFrame. Hàm chạy từng expectation, trả kết quả pass/fail và ghi JSON theo tên trạng thái vào `data/quality/`.
 
-Freshness dùng `age_days` nếu cột này có sẵn; nếu không, tính tuổi từ `published`. Hàm đếm bài quá ngưỡng 180 ngày và tính tỷ lệ trên tổng số dòng. Tuổi không xác định được xem là tín hiệu không an toàn. Hai hàm reporting nhận số liệu từ pipeline, tạo bảng Markdown và tính chênh lệch metrics giữa corrupted/repaired với baseline; chúng không tự khẳng định đã phục hồi khi thiếu bằng chứng.
+Freshness tính tuổi từ `published`, đối chiếu với `age_days` nếu có và lấy giá trị lớn hơn theo từng dòng. Vì vậy một cột tuổi cũ không thể che ngày xuất bản đã bị lùi. Hàm đếm bài quá ngưỡng 180 ngày và tính tỷ lệ trên tổng số dòng; tuổi không xác định được xem là tín hiệu không an toàn. Hai hàm reporting nhận số liệu từ pipeline, tạo bảng Markdown và tính chênh lệch metrics giữa corrupted/repaired với baseline.
 
 ### Input, output và contract
 
@@ -110,18 +110,18 @@ python -m pytest tests/test_observability.py -q --tb=line
 
 | Metric/signal | Baseline | Corrupted | Repaired | Nhận xét |
 | --- | ---: | ---: | ---: | --- |
-| `retrieval_hit_rate` | Chưa có | Chưa có | Chưa có | Chờ 3 metrics JSON của pipeline |
-| `mean_token_f1` | Chưa có | Chưa có | Chưa có | Chờ 3 metrics JSON của pipeline |
-| `judge_accuracy` | Chưa có | Chưa có | Chưa có | Chờ 3 metrics JSON của pipeline |
-| `mean_judge_score` | Chưa có | Chưa có | Chưa có | Chờ 3 metrics JSON của pipeline |
-| Quality checks | Test mẫu: PASS | Test mẫu: FAIL | Chưa chạy pipeline | Test mẫu phát hiện DOI trùng, title trắng, summary rỗng |
-| Freshness status | Test mẫu: PASS | Test mẫu: FAIL | Chưa chạy pipeline | Test mẫu corrupted có 3/5 bài quá 180 ngày |
+| `retrieval_hit_rate` | 1,0000 | 0,4000 | 1,0000 | 6/10 câu miss sau corruption |
+| `mean_token_f1` | 1,0000 | 0,6529 | 1,0000 | Giảm rồi phục hồi trên cùng test set |
+| `judge_accuracy` | 1,0000 | 0,7000 | 1,0000 | Heuristic fallback |
+| `mean_judge_score` | 5,0000 | 3,4000 | 5,0000 | Heuristic fallback, thang 1–5 |
+| Quality checks | PASS | FAIL | PASS | DOI trùng và summary ngắn làm hai expectation fail |
+| Freshness status | FRESH | STALE | FRESH | Stale ratio 1/24 → 7/23 → 1/24 |
 
 ### Kết luận từ bằng chứng hiện có
 
-- Với dữ liệu kiểm thử giả lập, corruption làm Quality Gate báo fail và Freshness SLA chuyển sang `is_fresh=False`. Bài kiểm tra **không đo Agent**, nên chưa kết luận được mức ảnh hưởng lên Hit Rate hoặc Token F1.
-- Chưa có repaired artifacts và metrics thực; chưa thể khẳng định luồng repair đã phục hồi chất lượng Agent. Sau khi thành viên 5 chạy pipeline, cần đối chiếu cùng test set và điền số liệu của ba trạng thái vào bảng trên.
-- Trong các lỗi đã thử, DOI trùng, title trắng và summary rỗng đều được GX phát hiện. Chưa thể xếp hạng lỗi nào ảnh hưởng RAG rõ nhất khi chưa có kết quả đánh giá từng kịch bản.
+- Corruption làm quality gate PASS → FAIL và freshness FRESH → STALE; cùng lúc hit rate giảm 1,0000 → 0,4000 và token F1 giảm 1,0000 → 0,6529. Năm DOI bị xóa thuộc ground truth của năm câu miss, nhưng sáu lỗi được tiêm đồng thời nên chưa định lượng riêng tác động từng lỗi.
+- Repair từ raw snapshot tạo 24 dòng như baseline; quality/freshness về PASS/FRESH và bốn metric trở lại baseline. Có thể đối chiếu `data/results/`, `data/quality/` và `data/clean/`.
+- GX phát hiện DOI trùng và summary ngắn; noise và title ngắn chưa có expectation riêng. Freshness được tính riêng, dựa trên cả `published` và `age_days` để không bỏ sót ngày bị làm cũ.
 
 ## 9. Điều học được và hướng cải thiện
 
@@ -129,15 +129,15 @@ python -m pytest tests/test_observability.py -q --tb=line
 2. Quality Gate và Freshness SLA cần hai tín hiệu rõ ràng: dữ liệu có thể đủ trường nhưng vẫn quá cũ.
 3. Tác động tới RAG phải được chứng minh bằng metrics trên cùng test set; cảnh báo dữ liệu tự nó chưa chứng minh câu trả lời Agent đã sai.
 
-Nếu có thêm thời gian, tôi sẽ bổ sung kiểm thử tích hợp trên clean/corrupted/repaired artifacts thực sau khi hai pipeline hoàn thiện, rồi xác minh báo cáo Markdown khớp với từng file JSON nguồn.
+Nếu có thêm thời gian, tôi sẽ bổ sung expectation cho title ngắn và noise, rồi đo tác động riêng của từng kịch bản corruption trên cùng test set.
 
 ## 10. Cam kết của thành viên
 
-- [x] Báo cáo nêu đúng phần mã và bài kiểm tra đã hoàn thành, tách khỏi phần pipeline chưa chạy.
+- [x] Báo cáo nêu đúng phần mã và bài kiểm tra đã hoàn thành, cùng kết quả pipeline đã chạy lại.
 - [x] Các kết luận hiện tại dựa trên bài kiểm tra và không dùng metrics giả lập làm kết quả RAG của nhóm.
 - [x] Báo cáo không chứa API key, token hoặc nội dung `.env`.
 - [x] Bổ sung họ tên, MSSV, tên nhóm, URL repository và xác nhận của bản thân.
-- [ ] Chạy pipeline tích hợp, điền metrics thật và rà soát lại toàn bộ bảng kết quả trước khi nộp.
+- [x] Đã đối chiếu metrics từ lần chạy tích hợp với JSON và báo cáo ba trạng thái.
 
 **Họ và tên:** Đặng Quốc Cường
 

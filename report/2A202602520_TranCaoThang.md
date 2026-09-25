@@ -129,23 +129,23 @@ print({'rows': len(df), 'test_set': len(test_set), 'types': sorted({x['question_
 
 | Metric/signal | Baseline | Corrupted | Repaired | Nhan xet ca nhan |
 |---|---:|---:|---:|---|
-| `retrieval_hit_rate` | Chua co artifact tich hop | Chua co artifact tich hop | Chua co artifact tich hop | Phu thuoc `phase1.py` va `corruption_flow.py` cua nhom |
-| `mean_token_f1` | Chua co artifact tich hop | Chua co artifact tich hop | Chua co artifact tich hop | Se duoc tinh tu cung test set |
-| `judge_accuracy` | Chua co artifact tich hop | Chua co artifact tich hop | Chua co artifact tich hop | Can LLM/mock judge trong evaluation |
-| `mean_judge_score` | Chua co artifact tich hop | Chua co artifact tich hop | Chua co artifact tich hop | Can metrics output that |
-| Quality checks | Chua co artifact tich hop | Chua co artifact tich hop | Chua co artifact tich hop | Module quality se kiem tra clean schema |
-| Freshness status | Chua co artifact tich hop | Chua co artifact tich hop | Chua co artifact tich hop | Dua vao `age_days` do cleaning tao |
+| `retrieval_hit_rate` | 1.0000 | 0.4000 | 1.0000 | 10 cau hoi dung chung cho ba trang thai |
+| `mean_token_f1` | 1.0000 | 0.6529 | 1.0000 | Giam sau corruption, phuc hoi sau repair |
+| `judge_accuracy` | 1.0000 | 0.7000 | 1.0000 | Heuristic fallback, khong phai LLM judge thuc |
+| `mean_judge_score` | 5.0000 | 3.4000 | 5.0000 | Heuristic fallback tren thang 1–5 |
+| Quality checks | PASS | FAIL | PASS | Duplicate DOI va summary ngan duoc phat hien |
+| Freshness status | FRESH | STALE | FRESH | Stale ratio 1/24 → 7/23 → 1/24 |
 
 ### Ket luan tu so lieu
 
-Phan minh phu trach da co bang chung cuc bo: clean dataset co 24 dong va evaluation set co 10 cau hoi du 4 loai. Cac metric baseline/corrupted/repaired can duoc cap nhat sau khi nhom merge day du cac module ingestion, index, observability va pipeline orchestration.
+Sau lan chay tich hop ngay 2026-09-25, `data/clean/papers_clean.json` co 24 dong va `data/eval/test_set.json` co 10 cau hoi du 4 loai. Ba file answers dung cung question va ground-truth DOI; repaired clean data bang baseline clean data.
 
-1. Data corruption nhu blank summary, duplicate rows, stale date se lam quality/freshness signal thay doi; evaluation set giu nguyen de do tac dong len retrieval/answer metric.
-2. Repair action tao lai clean data tu raw records; thanh cong khi schema clean quay ve hop le va metrics repaired phuc hoi gan baseline.
+1. Drop 5 paper moi nhat, trong do ca 5 la ground truth cua cac cau hoi bi miss; quality FAIL, freshness STALE va hit rate giam 1.0000 → 0.4000. Khong the quy toan bo thay doi cho rieng mot scenario vi 6 loi duoc tiem cung luc.
+2. Repair tu raw records tao lai 24 dong clean; quality/freshness ve PASS/FRESH va cac metric ve baseline.
 
-Corruption du kien anh huong ro nhat voi phan cua toi la blank summary va duplicate rows, vi chung tac dong truc tiep vao `summary_chars`, `text_for_embedding` va document uniqueness.
+Ve phan clean/test set, `blank_summary` va `duplicate_rows` la hai loi duoc quality gate phat hien ro; `drop_latest_records` co lien he truc tiep nhat voi nam cau retrieval miss.
 
-Ket qua khac ky vong ban dau: rieng module cleaning/test-set co the xac minh doc lap, nhung chua nen tu nhan thanh cong end-to-end khi pipeline chung con phu thuoc vao cac owner khac.
+Kiem tra `data/results/` va `data/quality/` la bang chung tich hop cua nhom; phan code ca nhan cua toi van la cleaning va test-set generation.
 
 ## 9. Dieu hoc duoc va huong cai thien
 

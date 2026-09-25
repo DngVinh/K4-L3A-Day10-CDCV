@@ -75,14 +75,14 @@ K4-L3-DAY10-TenNhom-DataPipeline/
 
 ## 4. CHECKLIST BẮT BUỘC TRƯỚC KHI NỘP LINK LÊN VLEARN
 
-- [ ] **Chạy thành công 2 lệnh:** 
+- [x] **Chạy thành công 2 lệnh trong `.venv` với `LLM_PROVIDER=mock` (2026-09-25):**
   - `python script/run_phase1.py` (Exit code 0)
   - `python script/run_corruption_flow.py` (Exit code 0)
-- [ ] **Báo cáo đối chiếu 3 trạng thái:** Tồn tại `data/reports/corruption_report.md` có đầy đủ bảng so sánh Baseline vs Corrupted vs Repaired.
-- [ ] **Chứng minh được độ suy giảm và phục hồi:** Có bằng chứng số liệu trong `baseline_metrics.json`, `corrupted_metrics.json`, `repaired_metrics.json`.
-- [ ] **Khai báo `TEAM.md`:** Đã điền đầy đủ họ tên, MSSV và phần tự khai cá nhân của từng thành viên.
-- [ ] **Bảo mật:** Không commit file `.env` chứa API Key lên GitHub.
-- [ ] **Kiểm tra Contributor trên GitHub nhánh `main`:**
+- [x] **Báo cáo đối chiếu 3 trạng thái:** `data/reports/corruption_report.md` có bảng Baseline vs Corrupted vs Repaired.
+- [x] **Chứng minh được độ suy giảm và phục hồi:** Ba metrics JSON và answers JSON đã được đối chiếu sau lần chạy mới.
+- [x] **Khai báo `TEAM.md`:** Đã điền họ tên, MSSV, vai trò và đường dẫn báo cáo cá nhân của cả 5 thành viên.
+- [x] **Bảo mật:** `.env` không được Git theo dõi; quét file chuẩn bị commit không thấy mẫu khóa thật.
+- [x] **Kiểm tra Contributor trên GitHub nhánh `main`:** API Contributors liệt kê 5 tài khoản tương ứng; từng thành viên cần xác nhận tài khoản của mình.
   - Truy cập repo nhóm trên GitHub $\rightarrow$ vào tab **Insights > Contributors**.
   - Bắt buộc **100% thành viên trong nhóm** đều phải xuất hiện trên đồ thị commit của nhánh mặc định (`main`).
 - [ ] **Nộp link:** Từng thành viên copy link repo (ví dụ: `https://github.com/<UserTruongNhom>/K4-L3-DAY10-TenNhom-DataPipeline`) và nộp lên cổng LMS trước 23h59!

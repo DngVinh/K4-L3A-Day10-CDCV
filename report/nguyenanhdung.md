@@ -19,7 +19,7 @@
 | Module/deliverable | File/hàm phụ trách | Input nhận vào | Output bàn giao | Trạng thái |
 | --- | --- | --- | --- | --- |
 | Data corruption suite | `src/ingestion/corruption.py` — `corrupt_clean_dataframe()` | Cleaned dataframe từ `cleaning.py` | Corrupted dataframe, `text_for_embedding` được tạo lại và `corruption_log.json` | Hoàn thành |
-| Kiểm tra corruption/repair | Đối chiếu corrupted và repaired dataset | Corrupted dataset, repaired dataset và log | Kết luận dữ liệu repair có hợp lệ hay không | Chờ tích hợp |
+| Kiểm tra corruption/repair | Đối chiếu corrupted và repaired dataset | Corrupted dataset, repaired dataset và log | Kết luận dữ liệu repair có hợp lệ hay không | Đã tích hợp, đã đối chiếu |
 
 Phạm vi chính của tôi là tạo các lỗi dữ liệu có chủ đích, ghi nhận đầy đủ bằng log và kiểm tra kết quả sau khi pipeline repair chạy. Tôi không nhận ownership cho bước làm sạch, đánh giá metric hoặc orchestration toàn bộ pipeline.
 
@@ -35,7 +35,7 @@ Phạm vi chính của tôi là tạo các lỗi dữ liệu có chủ đích, g
 | --- | --- | --- | --- |
 | Triển khai 6 kịch bản corruption | `src/ingestion/corruption.py` | Corrupted dataset từ 24 dòng clean thành 23 dòng corrupted | Artifact thật có đủ 6 scenario trong log. |
 | Tạo lại ngữ cảnh embedding | `_rebuild_embedding_text()` | Cột `text_for_embedding` đồng bộ với các trường đã bị làm bẩn | Toàn bộ 23 dòng đầu ra bắt đầu bằng `Title:`. |
-| Ghi audit log | `core.utils.write_json()` | `data/results/corruption_log.json` có số dòng, loại lỗi, số lượng và `paper_id` bị ảnh hưởng | Log ghi nhận 5 bản ghi bị xóa, cùng 5 bản ghi cho mỗi scenario còn lại. |
+| Ghi audit log | `core.utils.write_json()` | `data/results/corruption_log.json` có số dòng, loại lỗi, số lượng và `paper_id` bị ảnh hưởng | Log ghi 5 bản ghi bị xóa; các scenario tiếp theo tác động 4, 4, 4, 6 và 4 dòng. |
 
 Output cụ thể phần việc của tôi là hàm `corrupt_clean_dataframe()`. Hàm không sửa dataframe đầu vào, trả về dataframe đã bị làm bẩn có thể tái lập và tạo log chi tiết để phục vụ quality check, evaluation và báo cáo.
 
@@ -66,7 +66,7 @@ Hàm tạo bản sao sâu của cleaned dataframe để không thay đổi basel
 ```
 
 - **Kết quả mong đợi:** Module hợp lệ; khi gọi với cleaned dataframe, log có đủ 6 scenario.
-- **Kết quả thực tế:** Compile thành công; đã chạy trên 24 raw records sau cleaning và tạo 23 dòng corrupted. Kết quả gồm 5 summary rỗng, 5 summary nhiễu, 5 title ngắn, 4 `paper_id` trùng; `text_for_embedding` được tạo lại cho toàn bộ dữ liệu đầu ra.
+- **Kết quả thực tế:** Compile thành công; từ 24 dòng clean tạo 23 dòng corrupted. Log ghi 4 lượt blank summary, 4 lượt inject noise, 4 lượt truncate title, 6 lượt stale date và 4 lượt duplicate; các nhóm có thể chồng lắp. Kiểm tra trên output thấy 5 summary dưới 30 ký tự và 4 DOI trùng; `text_for_embedding` được tạo lại cho mọi dòng.
 - **Artifact/log:** `data/clean/papers_clean_corrupted.csv`, `data/clean/papers_clean_corrupted.json` và `data/results/corruption_log.json`.
 
 ## 5. Một quyết định kỹ thuật quan trọng
@@ -77,12 +77,12 @@ Hàm tạo bản sao sâu của cleaned dataframe để không thay đổi basel
 - **Lý do:** Kết quả có thể tái lập, dễ debug và cho phép so sánh baseline/corrupted/repaired trên cùng điều kiện.
 - **Bằng chứng:** Artifact thật có log đủ 6 scenario và liệt kê chính xác các `paper_id` bị tác động; cùng input sẽ chọn cùng record.
 
-## 6. Một blocker đang theo dõi
+## 6. Blocker đã xử lý khi tích hợp
 
-- **Phạm vi bị ảnh hưởng:** Kiểm tra repaired dataset.
-- **Nguyên nhân:** Repair flow của Thành viên 5 chưa tạo artifact repaired tại thời điểm viết báo cáo.
-- **Những gì đã hoàn thành:** Đã tạo corrupted dataset thật từ cleaned dataset của Thành viên 2, gồm 24 dòng input và 23 dòng output, đồng thời tạo audit log.
-- **Bước tiếp theo:** Sau repair, đối chiếu schema, duplicate, title, summary và published giữa baseline/corrupted/repaired.
+- **Phạm vi bị ảnh hưởng:** Kiểm tra repaired dataset và freshness sau corruption.
+- **Nguyên nhân ban đầu:** Repair flow chưa có artifact lúc viết bản báo cáo đầu; sau tích hợp phát hiện `stale_date` chưa đồng bộ `age_days` và tỷ lệ bản ghi cũ chưa vượt SLA.
+- **Cách xử lý:** Flow đã tạo repaired data từ raw; scenario stale date cập nhật tuổi và chọn đủ bản ghi để vượt ngưỡng 25%.
+- **Xác minh:** Baseline/corrupted/repaired có 24/23/24 dòng; repaired JSON bằng baseline JSON; freshness FRESH → STALE → FRESH.
 
 ## 7. Hiểu biết về luồng end-to-end
 
@@ -96,20 +96,20 @@ Hàm tạo bản sao sâu của cleaned dataframe để không thay đổi basel
 
 | Metric/signal | Baseline | Corrupted | Repaired | Nhận xét của cá nhân |
 | --- | ---: | ---: | ---: | --- |
-| `retrieval_hit_rate` | Chưa có | Chưa có | Chưa có | Chờ pipeline integration chạy cùng test set. |
-| `mean_token_f1` | Chưa có | Chưa có | Chưa có | Chờ pipeline integration chạy cùng test set. |
-| `judge_accuracy` | Chưa có | Chưa có | Chưa có | Chờ pipeline integration chạy cùng test set. |
-| `mean_judge_score` | Chưa có | Chưa có | Chưa có | Chờ pipeline integration chạy cùng test set. |
-| Quality checks | Chưa có | Chưa có | Chưa có | Corruption được thiết kế để tạo signal về summary, title và duplicate. |
-| Freshness status | Chưa có | Chưa có | Chưa có | Scenario stale date dự kiến làm freshness xấu đi. |
+| `retrieval_hit_rate` | 1,0000 | 0,4000 | 1,0000 | 5 DOI bị xóa thuộc ground truth của các câu miss |
+| `mean_token_f1` | 1,0000 | 0,6529 | 1,0000 | Giảm rồi phục hồi trên cùng test set |
+| `judge_accuracy` | 1,0000 | 0,7000 | 1,0000 | Heuristic fallback, không phải LLM judge thực |
+| `mean_judge_score` | 5,0000 | 3,4000 | 5,0000 | Heuristic fallback, thang 1–5 |
+| Quality checks | PASS | FAIL | PASS | Duplicate và summary ngắn bị phát hiện |
+| Freshness status | FRESH | STALE | FRESH | 1/24 → 7/23 → 1/24 dòng stale |
 
-Chưa có số liệu baseline/corrupted/repaired thực tế nên tôi không kết luận mức suy giảm hay phục hồi. Sau khi pipeline hoàn tất, cần kiểm tra chuỗi bằng chứng: corruption làm quality/freshness thay đổi và metric RAG giảm; repair từ raw làm artifact hợp lệ trở lại và metric phục hồi.
+Sau tích hợp ngày 2026-09-25, sáu kịch bản chạy đồng thời làm quality/freshness đổi PASS/FRESH → FAIL/STALE và hit rate giảm 1,0000 → 0,4000. Repair từ raw đưa clean data, quality/freshness và bốn metric về baseline. Không thể quy toàn bộ tác động cho một scenario nếu chưa chạy từng lỗi riêng.
 
 ## 9. Điều học được và hướng cải thiện
 
 1. Corruption phải được log theo record và có thể tái lập thì kết quả đánh giá mới có thể kiểm chứng.
 2. Thay đổi summary mà không tạo lại `text_for_embedding` sẽ khiến index nhận dữ liệu cũ, làm thí nghiệm không phản ánh đúng lỗi dữ liệu.
-3. Quality gate phát hiện duplicate, title ngắn hoặc summary rỗng giúp chặn vấn đề trước khi lan sang retrieval và agent.
+3. Quality gate hiện phát hiện duplicate và summary rỗng/ngắn; title ngắn cần bổ sung expectation riêng.
 
 Nếu có thêm thời gian, tôi sẽ bổ sung test tự động cho từng scenario và kiểm tra bất biến của repair: repaired dataframe phải khớp với dataset tái tạo từ raw theo schema và số lượng dòng kỳ vọng.
 

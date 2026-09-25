@@ -120,26 +120,19 @@ Giải thích ngắn gọn bằng lời của bạn:
 
 | Metric/signal          | Baseline | Corrupted | Repaired | Nhận xét của cá nhân |
 | ---------------------- | -------: | --------: | -------: | ------------------------- |
-| `retrieval_hit_rate` | Chưa có | Chưa có | Chưa có | Pipeline evaluation chưa được thành viên phụ trách tích hợp chạy |
-| `mean_token_f1` | Chưa có | Chưa có | Chưa có | Không tự suy diễn số liệu khi artifact metrics chưa tồn tại |
-| `judge_accuracy` | Chưa có | Chưa có | Chưa có | Chờ `baseline_metrics.json`, `corrupted_metrics.json`, `repaired_metrics.json` |
-| `mean_judge_score` | Chưa có | Chưa có | Chưa có | Chờ kết quả chạy end-to-end |
-| Quality checks | Chưa có | Chưa có | Chưa có | Ngoài phạm vi Source owner; chờ `quality.py` hoàn thiện |
-| Freshness status | Chưa có | Chưa có | Chưa có | Ngoài phạm vi Source owner; chờ freshness artifact |
+| `retrieval_hit_rate` | 1,0000 | 0,4000 | 1,0000 | 5 DOI bị xóa thuộc ground truth của 5 câu miss |
+| `mean_token_f1` | 1,0000 | 0,6529 | 1,0000 | Giảm rồi phục hồi trên cùng test set |
+| `judge_accuracy` | 1,0000 | 0,7000 | 1,0000 | Heuristic fallback, không phải LLM judge thực |
+| `mean_judge_score` | 5,0000 | 3,4000 | 5,0000 | Heuristic fallback, thang 1–5 |
+| Quality checks | PASS | FAIL | PASS | Duplicate DOI và summary ngắn được phát hiện |
+| Freshness status | FRESH | STALE | FRESH | Stale ratio 1/24 → 7/23 → 1/24 |
 
 ### Kết luận từ số liệu
 
-Hoàn thành hai chuỗi nguyên nhân–bằng chứng sau:
+1. `drop_latest_records` bỏ 5 DOI xuất hiện trong evaluation set → 5 câu không thể hit DOI chuẩn → hit rate toàn bộ giảm từ 1,0000 xuống 0,4000. Sáu lỗi được tiêm đồng thời, nên câu miss thứ sáu chưa thể quy cho một lỗi riêng.
+2. Repair đọc lại 24 raw records đã bảo toàn → quality PASS, freshness FRESH → hit rate và token F1 trở lại 1,0000.
 
-Hiện chưa thể hoàn thành hai chuỗi nhân quả bằng số liệu vì pipeline baseline/corruption/repair và các metric artifact chưa được tạo. Sau khi tích hợp, cần điền đúng số liệu từ `data/results/` và `data/quality/`, không kết luận dựa trên kỳ vọng.
-
-Corruption nào ảnh hưởng rõ nhất và vì sao?
-
-Chưa kết luận vì chưa có `corrupted_metrics.json`. Về giả thuyết, drop record hoặc blank summary của tài liệu thuộc test set có thể ảnh hưởng trực tiếp đến retrieval hit và answer quality, nhưng phải xác nhận bằng artifact thực tế.
-
-Kết quả nào khác với kỳ vọng ban đầu?
-
-Chưa có kết quả end-to-end để đối chiếu kỳ vọng. Phần Source owner đã xác minh riêng rằng parser, schema, retry và fallback hoạt động đúng.
+Với vai trò Source owner, bằng chứng quan trọng là raw snapshot 24 DOI vẫn còn nguyên để tạo lại dữ liệu sạch. Các số trên lấy từ `data/results/`, `data/quality/` và `data/results/corruption_log.json` sau lần chạy tích hợp ngày 2026-09-25.
 
 ## 9. Điều học được và hướng cải thiện
 

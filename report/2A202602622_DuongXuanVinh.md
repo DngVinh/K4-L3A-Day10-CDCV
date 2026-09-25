@@ -83,7 +83,7 @@ $env:PYTHONPATH = 'src'
   2. Rebuild lại từ raw snapshot tin cậy và tạo index repaired riêng.
 - **Phương án đã chọn:** Dùng cùng data/eval/test_set.json cho cả ba trạng thái; repair bằng cách rebuild từ raw snapshot; tách collection/index cho baseline, corrupted và repaired.
 - **Lý do:** Cách này giữ nguyên benchmark, bảo toàn data lineage, tránh che lỗi bằng patch cục bộ và giúp tái lập kết quả trên máy khác.
-- **Bằng chứng quyết định phù hợp:** Quality chuyển FAIL → PASS, freshness STALE → FRESH, retrieval hit rate 0.4000 → 1.0000, mean token F1 0.6788 → 1.0000.
+- **Bằng chứng quyết định phù hợp:** Quality chuyển FAIL → PASS, freshness STALE → FRESH, retrieval hit rate 0.4000 → 1.0000, mean token F1 0.6529 → 1.0000.
 
 ## 6. Một lỗi hoặc blocker đã xử lý
 
@@ -109,15 +109,15 @@ $env:PYTHONPATH = 'src'
 | Metric/signal | Baseline | Corrupted | Repaired | Nhận xét của cá nhân |
 | --- | ---: | ---: | ---: | --- |
 | retrieval_hit_rate | 1.0000 | 0.4000 | 1.0000 | Corruption làm mất 60 điểm phần trăm; repair phục hồi toàn bộ |
-| mean_token_f1 | 1.0000 | 0.6788 | 1.0000 | Answer overlap giảm rồi trở lại baseline |
-| judge_accuracy | 1.0000 | 0.7000 | 1.0000 | 3/10 verdict bị ảnh hưởng ở corrupted |
-| mean_judge_score | 5.0000 | 3.6000 | 5.0000 | Mất 1.4 điểm rồi phục hồi |
-| Quality checks | PASS | FAIL | PASS | GX/manual phát hiện corrupted và xác nhận repair |
-| Freshness status | FRESH | STALE | FRESH | 6/20 stale rows tạo stale ratio 30% |
+| mean_token_f1 | 1.0000 | 0.6529 | 1.0000 | Answer overlap giảm rồi trở lại baseline |
+| judge_accuracy | 1.0000 | 0.7000 | 1.0000 | 3/10 verdict heuristic bị ảnh hưởng ở corrupted; không phải LLM judge thực |
+| mean_judge_score | 5.0000 | 3.4000 | 5.0000 | Mất 1.6 điểm rồi phục hồi; heuristic fallback |
+| Quality checks | PASS | FAIL | PASS | GX phát hiện DOI trùng và summary ngắn |
+| Freshness status | FRESH | STALE | FRESH | 7/23 stale rows tạo stale ratio 30,43% |
 
 ### Kết luận từ số liệu
 
-1. Drop latest records, blank summary, duplicate rows và stale dates → row/summary/uniqueness/freshness signals fail → retrieval hit rate giảm 1.0000 xuống 0.4000 và token F1 giảm xuống 0.6788.
+1. Drop latest records, blank summary, duplicate rows và stale dates → summary/uniqueness/freshness signals fail → retrieval hit rate giảm 1.0000 xuống 0.4000 và token F1 giảm xuống 0.6529. Row count vẫn pass ngưỡng 5–5000.
 2. Rebuild từ raw snapshot → quality/freshness trở lại PASS/FRESH → retrieval hit rate, token F1, judge accuracy và mean judge score đều phục hồi về baseline.
 
 Corruption ảnh hưởng rõ nhất đến agent là drop_latest_records: 5 record mới nhất bị bỏ, trong đó có các document được dùng làm ground truth của evaluation set, nên retrieval hit rate giảm mạnh. duplicate_rows và blank_summary tạo tín hiệu quality rõ ràng; stale_date tạo tín hiệu freshness rõ ràng.
