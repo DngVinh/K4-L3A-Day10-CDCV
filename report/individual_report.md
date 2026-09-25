@@ -33,9 +33,9 @@ Phạm vi chính của tôi là tạo các lỗi dữ liệu có chủ đích, g
 
 | Nhiệm vụ đã thực hiện | File/hàm/artifact liên quan | Kết quả bàn giao | Cách xác minh |
 | --- | --- | --- | --- |
-| Triển khai 6 kịch bản corruption | `src/ingestion/corruption.py` | Drop latest, blank summary, inject noise, truncate title, stale date và duplicate rows | Smoke test với dataframe mô phỏng xác nhận đủ 6 scenario được ghi log. |
-| Tạo lại ngữ cảnh embedding | `_rebuild_embedding_text()` | Cột `text_for_embedding` đồng bộ với các trường đã bị làm bẩn | Smoke test xác nhận mọi dòng đầu ra bắt đầu bằng `Title:`. |
-| Ghi audit log | `core.utils.write_json()` | `corruption_log.json` có số dòng, loại lỗi, số lượng và `paper_id` bị ảnh hưởng | Smoke test đọc lại JSON và xác nhận đúng 6 scenario. |
+| Triển khai 6 kịch bản corruption | `src/ingestion/corruption.py` | Corrupted dataset từ 24 dòng clean thành 23 dòng corrupted | Artifact thật có đủ 6 scenario trong log. |
+| Tạo lại ngữ cảnh embedding | `_rebuild_embedding_text()` | Cột `text_for_embedding` đồng bộ với các trường đã bị làm bẩn | Toàn bộ 23 dòng đầu ra bắt đầu bằng `Title:`. |
+| Ghi audit log | `core.utils.write_json()` | `data/results/corruption_log.json` có số dòng, loại lỗi, số lượng và `paper_id` bị ảnh hưởng | Log ghi nhận 5 bản ghi bị xóa, cùng 5 bản ghi cho mỗi scenario còn lại. |
 
 Output cụ thể phần việc của tôi là hàm `corrupt_clean_dataframe()`. Hàm không sửa dataframe đầu vào, trả về dataframe đã bị làm bẩn có thể tái lập và tạo log chi tiết để phục vụ quality check, evaluation và báo cáo.
 
@@ -66,8 +66,8 @@ Hàm tạo bản sao sâu của cleaned dataframe để không thay đổi basel
 ```
 
 - **Kết quả mong đợi:** Module hợp lệ; khi gọi với cleaned dataframe, log có đủ 6 scenario.
-- **Kết quả thực tế:** Compile thành công; smoke test với dữ liệu mô phỏng xác nhận duplicate, title ngắn, summary nhiễu và `text_for_embedding` được tạo lại.
-- **Artifact/log:** `data/results/corruption_log.json` sẽ được sinh khi nhận cleaned dataset và chạy hàm trên dữ liệu thật.
+- **Kết quả thực tế:** Compile thành công; đã chạy trên 24 raw records sau cleaning và tạo 23 dòng corrupted. Kết quả gồm 5 summary rỗng, 5 summary nhiễu, 5 title ngắn, 4 `paper_id` trùng; `text_for_embedding` được tạo lại cho toàn bộ dữ liệu đầu ra.
+- **Artifact/log:** `data/clean/papers_clean_corrupted.csv`, `data/clean/papers_clean_corrupted.json` và `data/results/corruption_log.json`.
 
 ## 5. Một quyết định kỹ thuật quan trọng
 
@@ -75,14 +75,14 @@ Hàm tạo bản sao sâu của cleaned dataframe để không thay đổi basel
 - **Các phương án đã cân nhắc:** Chọn ngẫu nhiên hoàn toàn mỗi lần chạy; hoặc chọn với seed cố định.
 - **Phương án đã chọn:** Dùng seed cố định riêng cho từng scenario.
 - **Lý do:** Kết quả có thể tái lập, dễ debug và cho phép so sánh baseline/corrupted/repaired trên cùng điều kiện.
-- **Bằng chứng:** Smoke test ghi đúng các record bị tác động; chạy lại với cùng input sẽ chọn cùng record.
+- **Bằng chứng:** Artifact thật có log đủ 6 scenario và liệt kê chính xác các `paper_id` bị tác động; cùng input sẽ chọn cùng record.
 
 ## 6. Một blocker đang theo dõi
 
-- **Phạm vi bị ảnh hưởng:** Tạo corrupted dataset thật và kiểm tra repaired dataset.
-- **Nguyên nhân:** Cleaned dataset của Thành viên 2 và repair flow của Thành viên 5 chưa được tích hợp vào nhánh hiện tại.
-- **Những gì đã hoàn thành:** Logic 6 scenario, validation input, tạo lại embedding text và audit log đã hoàn thành, compile và smoke test thành công.
-- **Bước tiếp theo:** Lấy `papers_clean.csv/json` từ nhánh Thành viên 2; sau repair, đối chiếu schema, duplicate, title, summary và published giữa baseline/corrupted/repaired.
+- **Phạm vi bị ảnh hưởng:** Kiểm tra repaired dataset.
+- **Nguyên nhân:** Repair flow của Thành viên 5 chưa tạo artifact repaired tại thời điểm viết báo cáo.
+- **Những gì đã hoàn thành:** Đã tạo corrupted dataset thật từ cleaned dataset của Thành viên 2, gồm 24 dòng input và 23 dòng output, đồng thời tạo audit log.
+- **Bước tiếp theo:** Sau repair, đối chiếu schema, duplicate, title, summary và published giữa baseline/corrupted/repaired.
 
 ## 7. Hiểu biết về luồng end-to-end
 
