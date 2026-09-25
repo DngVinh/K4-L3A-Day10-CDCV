@@ -9,7 +9,7 @@
 | Khóa/Lớp | K4-L3-DAY10 |
 | Tên nhóm | CDCV |
 | Vai trò chính | Trưởng nhóm / TV5 — Pipeline integration & evidence owner |
-| Repository | <https://github.com/DngVinh/K4-L3A-Day10-CDCV> |
+| Repository | <https://github.com/DngVinh/K4-L3A-Day10-Data-Pipeline-Data-Observability> |
 | Ngày hoàn thành | 2026-09-25 |
 
 ## 2. Vai trò và phạm vi công việc

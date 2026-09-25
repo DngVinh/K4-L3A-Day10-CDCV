@@ -6,7 +6,7 @@
 | --- | --- |
 | Khóa/lớp | K4-L3-DAY10 |
 | Nhóm | CDCV |
-| Repository | [K4-L3A-Day10-CDCV](https://github.com/DngVinh/K4-L3A-Day10-CDCV) |
+| Repository | [K4-L3A-Day10-Data-Pipeline-Data-Observability](https://github.com/DngVinh/K4-L3A-Day10-Data-Pipeline-Data-Observability) |
 | Ngày tổng hợp | 2026-09-25 |
 | Email liên hệ | tendangc@gmail.com |
 
@@ -15,7 +15,7 @@
 | 1 | Đào Quang Cảnh | 2A202602542 | Nguồn Crossref, raw snapshot, `src/ingestion/crossref.py` | [daoquangcanh.md](daoquangcanh.md) |
 | 2 | Trần Cao Thắng | 2A202602520 | Cleaning, data contract, evaluation set | [2A202602520_TranCaoThang.md](2A202602520_TranCaoThang.md) |
 | 3 | Đặng Quốc Cường | 2A202602466 | Great Expectations, freshness, báo cáo | [dangquoccuong_report.md](dangquoccuong_report.md) |
-| 4 | Nguyễn Anh Dũng | 2A202602554 | Sáu kịch bản corruption, repair | [nguyenanhdung.md](nguyenanhdung.md) |
+| 4 | Nguyễn Anh Dũng | 2A202602554 | Sáu kịch bản corruption, repair | [2A202602554-NguyenAnhDung.md](2A202602554-NguyenAnhDung.md) |
 | 5 | Dương Xuân Vinh | 2A202602622 | Trưởng nhóm, tích hợp hai pipeline và bằng chứng | [2A202602622_DuongXuanVinh.md](2A202602622_DuongXuanVinh.md) |
 
 ## 2. Tóm tắt kết quả
@@ -188,7 +188,6 @@ Metrics trong ba file JSON khớp khi tính lại từ 30 answer records. Sau co
 
 | Giới hạn | Ảnh hưởng | Bước kiểm chứng tiếp theo |
 | --- | --- | --- |
-| Artifact mới chưa được push/merge lên `main` | Remote `main` vẫn chứa bộ số liệu cũ | Push branch hiện tại và merge sau khi nhóm rà soát |
 | Báo cáo cá nhân đã được cập nhật số liệu nhóm | Nội dung về phần việc và cam kết vẫn cần chủ sở hữu xác nhận | Mỗi thành viên tự rà lại báo cáo phần mình trước khi nộp |
 | Judge dùng heuristic fallback; Ragas tắt | `judge_accuracy` không phải kết quả chấm bởi LLM; không có Ragas | Cấu hình judge thực, lưu model/run metadata; bật Ragas nếu bài nộp yêu cầu |
 | Test set lấy từ 10 bài mới nhất và câu hỏi nêu nguyên tiêu đề | Lookup title có thể làm hit rate baseline lạc quan | Thêm câu hỏi diễn đạt lại không chứa title và đánh giá trên tập cố định độc lập |
@@ -204,7 +203,7 @@ Metrics trong ba file JSON khớp khi tính lại từ 30 answer records. Sau co
 - [x] Freshness phát hiện stale date và phục hồi sau repair.
 - [x] Clean dataset, evaluation set, ba embedding manifests và Chroma index đã được tạo.
 - [x] Rà soát và commit code, artifact, báo cáo mới trên branch hiện tại.
-- [ ] Push branch và merge lên `main` sau khi nhóm rà soát.
+- [x] Tích hợp cập nhật mới của thành viên và push lên `main`.
 - [ ] Các thành viên tự xác nhận nội dung báo cáo cá nhân đã cập nhật theo lần chạy mới.
 - [ ] Kiểm tra contributor trên `main` và từng thành viên tự nộp link repository trên LMS.
 

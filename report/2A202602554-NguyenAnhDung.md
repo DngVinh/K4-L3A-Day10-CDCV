@@ -9,7 +9,7 @@
 | Khóa/Lớp | K4 |
 | Tên nhóm | CDCV |
 | Vai trò chính | Thành viên 4 — Corruption & Repair Owner |
-| Repository | https://github.com/DngVinh/K4-L3A-Day10-CDCV |
+| Repository | https://github.com/DngVinh/K4-L3A-Day10-Data-Pipeline-Data-Observability |
 | Ngày hoàn thành | 2026-09-25 |
 
 ## 2. Vai trò và phạm vi công việc
@@ -77,12 +77,12 @@ Hàm tạo bản sao sâu của cleaned dataframe để không thay đổi basel
 - **Lý do:** Kết quả có thể tái lập, dễ debug và cho phép so sánh baseline/corrupted/repaired trên cùng điều kiện.
 - **Bằng chứng:** Artifact thật có log đủ 6 scenario và liệt kê chính xác các `paper_id` bị tác động; cùng input sẽ chọn cùng record.
 
-## 6. Blocker đã xử lý khi tích hợp
+## 6. Kiểm tra repair đã hoàn thành
 
-- **Phạm vi bị ảnh hưởng:** Kiểm tra repaired dataset và freshness sau corruption.
-- **Nguyên nhân ban đầu:** Repair flow chưa có artifact lúc viết bản báo cáo đầu; sau tích hợp phát hiện `stale_date` chưa đồng bộ `age_days` và tỷ lệ bản ghi cũ chưa vượt SLA.
-- **Cách xử lý:** Flow đã tạo repaired data từ raw; scenario stale date cập nhật tuổi và chọn đủ bản ghi để vượt ngưỡng 25%.
-- **Xác minh:** Baseline/corrupted/repaired có 24/23/24 dòng; repaired JSON bằng baseline JSON; freshness FRESH → STALE → FRESH.
+- **Phạm vi kiểm tra:** Dữ liệu repaired, quality/freshness reports và metrics RAG.
+- **Cách repair:** Pipeline đọc lại raw snapshot, clean lại từ đầu và xây dựng index repaired riêng; không sửa vá trực tiếp dataframe corrupted.
+- **Kết quả:** Repaired quality chuyển từ FAIL về PASS, freshness từ STALE về FRESH. Các metric `retrieval_hit_rate`, `mean_token_f1`, `judge_accuracy` và `mean_judge_score` đều quay về mức baseline.
+- **Bằng chứng:** `data/results/repaired_metrics.json`, `data/quality/repaired_quality_report.json`, `data/quality/repaired_freshness_report.json` và `data/reports/corruption_report.md`. Baseline/corrupted/repaired có 24/23/24 dòng; repaired JSON bằng baseline JSON.
 
 ## 7. Hiểu biết về luồng end-to-end
 

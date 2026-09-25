@@ -9,7 +9,7 @@
 | Khoa/Lop | K4-L3A-DAY10 |
 | Ten nhom | K4-L3A-Day10-CDCV |
 | Vai tro chinh | Cleaning & Test-set owner |
-| Repository | https://github.com/DngVinh/K4-L3A-Day10-CDCV |
+| Repository | https://github.com/DngVinh/K4-L3A-Day10-Data-Pipeline-Data-Observability |
 | Branch | `Tran-Cao-Thang---2A202602520---Thanh-vien-2` |
 | Ngay hoan thanh | 2026-09-25 |
 
